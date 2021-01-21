@@ -1,0 +1,32 @@
+name: import-teams
+
+on:
+  schedule:
+    - cron: 30 1 * * * # JST 10:30
+  # 再実行やデバッグ用に手動でも実行可能にしておく
+  workflow_dispatch:
+    inputs:
+      comment:
+        description: "comment"
+        required: false
+
+env:
+  TZ: "Asia/Tokyo"
+jobs:
+  import-teams:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+      - run: yarn install
+      # GITHUB_IMPORTER_GCP_SA_KEYにGCPのキーファイルをbase64化したものを
+      # 入れておけば、GCPの認証の設定をしてくれる。
+      - uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY_FOR_GITHUB_IMPORTER }}
+          export_default_credentials: true
+      - run: yarn --silent ts-node script/import-teams.ts
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_FOR_GITHUB_IMPORTER }}

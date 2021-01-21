@@ -1,0 +1,37 @@
+name: import-pull-request
+
+on:
+  schedule:
+    - cron: 30 1 * * * # JST 10:30
+  # 再実行やデバッグ用に手動でも実行可能にしておく
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: 集計対象の始点。ISO8601形式。
+        required: false
+      end_date:
+        description: 集計対象の終点。ISO8601形式。
+        required: false
+
+env:
+  TZ: "Asia/Tokyo"
+jobs:
+  import-pull-request:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+      - run: yarn install
+      # GITHUB_IMPORTER_GCP_SA_KEYにGCPのキーファイルをbase64化したものを
+      # 入れておけば、GCPの認証の設定をしてくれる。
+      - uses: google-github-actions/setup-gcloud@master
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY_FOR_GITHUB_IMPORTER }}
+          export_default_credentials: true
+      - run: yarn --silent ts-node script/import-pull-request.ts
+        env:
+          START_DATE: ${{ github.event.inputs.start_date }}
+          END_DATE: ${{ github.event.inputs.end_date }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN_FOR_GITHUB_IMPORTER }}
