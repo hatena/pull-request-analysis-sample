@@ -14,7 +14,10 @@ import { fileSync } from "tmp";
 // 実行例
 // GITHUB_TOKEN=... GOOGLE_APPLICATION_CREDENTIALS=/path/to/keyfile.json yarn --silent ts-node script/import-teams.ts
 
+// どのgithub organizationsのデータを取得するか
+const GITHUB_ORG_NAME = "hatena";
 const GITHUB_GRAPHQL_ENDPOINT = "https://api.github.com/graphql";
+// BigQueryのプロジェクトID
 const GCP_PROJECT_ID = "pull-request-analysis-sample";
 
 (async function main(): Promise<void> {
@@ -92,7 +95,7 @@ async function fetchTeamsWithRepositories(graphqlClient: GraphQLClient): Promise
 async function fetchAllTeamsByQuery(graphqlClient: GraphQLClient): Promise<TeamNode[]> {
   const query = gql`
     query($after: String) {
-      organization(login: "hatena") {
+      organization(login: "${GITHUB_ORG_NAME}") {
         teams(first: 10, after: $after) {
           nodes {
             name
