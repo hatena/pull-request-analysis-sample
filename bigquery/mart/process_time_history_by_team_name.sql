@@ -1,7 +1,7 @@
 WITH all_team_pull_requests AS (
   SELECT
     teamName,
-    TIMESTAMP_DIFF(mergedAt, firstCommittedAt, hour) AS lead_time_hour,
+    TIMESTAMP_DIFF(mergedAt, firstCommittedAt, hour) AS process_time_hour,
     pull_requests.*,
   FROM
     `pull-request-analysis-sample`.source__github.pull_requests
@@ -54,9 +54,9 @@ github_pr_logs_with_median AS (
   SELECT
     concat(teamName, date_seq.date) as join_key,
     date_seq.date,
-    PERCENTILE_CONT(github_pr_logs.lead_time_hour, 0.25) OVER (PARTITION BY date_seq.date, teamName) AS time_to_merge_25pctile,
-    PERCENTILE_CONT(github_pr_logs.lead_time_hour, 0.5) OVER (PARTITION BY date_seq.date, teamName) AS time_to_merge_median,
-    PERCENTILE_CONT(github_pr_logs.lead_time_hour, 0.75) OVER (PARTITION BY date_seq.date, teamName) AS time_to_merge_75pctile,
+    PERCENTILE_CONT(github_pr_logs.process_time_hour, 0.25) OVER (PARTITION BY date_seq.date, teamName) AS time_to_merge_25pctile,
+    PERCENTILE_CONT(github_pr_logs.process_time_hour, 0.5) OVER (PARTITION BY date_seq.date, teamName) AS time_to_merge_median,
+    PERCENTILE_CONT(github_pr_logs.process_time_hour, 0.75) OVER (PARTITION BY date_seq.date, teamName) AS time_to_merge_75pctile,
     COUNT(*) OVER (PARTITION BY date_seq.date, teamName) AS pr_count,
     github_pr_logs.*
   FROM
@@ -69,9 +69,9 @@ github_pr_logs_with_7d_median AS (
   SELECT
     concat(teamName, date_seq.date) as join_key,
     date_seq.date,
-    PERCENTILE_CONT(github_pr_logs.lead_time_hour, 0.25) OVER (PARTITION BY date_seq.date, teamName) AS time_to_merge_25pctile,
-    PERCENTILE_CONT(github_pr_logs.lead_time_hour, 0.5) OVER (PARTITION BY date_seq.date, teamName) AS time_to_merge_median,
-    PERCENTILE_CONT(github_pr_logs.lead_time_hour, 0.75) OVER (PARTITION BY date_seq.date, teamName) AS time_to_merge_75pctile,
+    PERCENTILE_CONT(github_pr_logs.process_time_hour, 0.25) OVER (PARTITION BY date_seq.date, teamName) AS time_to_merge_25pctile,
+    PERCENTILE_CONT(github_pr_logs.process_time_hour, 0.5) OVER (PARTITION BY date_seq.date, teamName) AS time_to_merge_median,
+    PERCENTILE_CONT(github_pr_logs.process_time_hour, 0.75) OVER (PARTITION BY date_seq.date, teamName) AS time_to_merge_75pctile,
     COUNT(*) OVER (PARTITION BY date_seq.date, teamName) AS pr_count,
     github_pr_logs.*
   FROM

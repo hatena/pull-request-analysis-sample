@@ -2,7 +2,7 @@ WITH all_team_pull_requests AS (
   SELECT
   teamName,
   repositoryNameWithOwner,
-  TIMESTAMP_DIFF(mergedAt, firstCommittedAt, hour) AS lead_time_hour,
+  TIMESTAMP_DIFF(mergedAt, firstCommittedAt, hour) AS process_time_hour,
   pull_requests.*,
 FROM
   `pull-request-analysis-sample`.source__github.pull_requests
@@ -59,8 +59,8 @@ github_pr_logs AS (
 github_pr_logs_with_median AS (
   SELECT
     date_seq.date,
-    PERCENTILE_CONT(github_pr_logs.lead_time_hour, 0.5) OVER (PARTITION BY date_seq.date, teamName) AS lead_time_median,
-    PERCENTILE_CONT(github_pr_logs.lead_time_hour, 0.5) OVER (PARTITION BY date_seq.date, teamName) AS time_to_merge_median,
+    PERCENTILE_CONT(github_pr_logs.process_time_hour, 0.5) OVER (PARTITION BY date_seq.date, teamName) AS process_time_median,
+    PERCENTILE_CONT(github_pr_logs.process_time_hour, 0.5) OVER (PARTITION BY date_seq.date, teamName) AS time_to_merge_median,
     COUNT(*) OVER (PARTITION BY date_seq.date, teamName) AS deploy_count,
     github_pr_logs.*
   FROM
@@ -72,7 +72,7 @@ SELECT
   date,
   teamName,
   MAX(deploy_count) AS deploy_count,
-  MAX(lead_time_median) AS lead_time_hours_median,
+  MAX(process_time_median) AS process_time_hours_median,
   MAX(time_to_merge_median) AS time_to_merge_hours_median,
 FROM
   github_pr_logs_with_median

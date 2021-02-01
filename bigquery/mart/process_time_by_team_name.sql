@@ -1,6 +1,6 @@
 SELECT
   teamName,
-  TIMESTAMP_DIFF(mergedAt, firstCommittedAt, hour) AS lead_time_hour,
+  TIMESTAMP_DIFF(mergedAt, firstCommittedAt, hour) AS process_time_hour,
   pull_requests.*,
 FROM
   `pull-request-analysis-sample`.source__github.pull_requests
