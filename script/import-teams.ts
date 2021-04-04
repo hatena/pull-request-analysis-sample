@@ -15,10 +15,10 @@ import { fileSync } from "tmp";
 // GITHUB_TOKEN=... GOOGLE_APPLICATION_CREDENTIALS=/path/to/keyfile.json yarn --silent ts-node script/import-teams.ts
 
 // どのgithub organizationsのデータを取得するか
-const GITHUB_ORG_NAME = "hatena";
+const GITHUB_ORG_NAME = "sako-personal";
 const GITHUB_GRAPHQL_ENDPOINT = "https://api.github.com/graphql";
 // BigQueryのプロジェクトID
-const GCP_PROJECT_ID = "pull-request-analysis-sample";
+const GCP_PROJECT_ID = "metrics-tracking-test";
 
 (async function main(): Promise<void> {
   const githubToken = process.env.GITHUB_TOKEN;

@@ -24,10 +24,10 @@ import { fileSync } from "tmp";
 // GITHUB_TOKEN=... GOOGLE_APPLICATION_CREDENTIALS=/path/to/keyfile.json START_DATE=2020-10-05 END_DATE=2020-10-12 yarn --silent ts-node script/import-pull-request.ts
 
 // どのgithub organizationsのデータを取得するか
-const GITHUB_ORG_NAME = "hatena";
+const GITHUB_ORG_NAME = "sako-personal";
 const GITHUB_GRAPHQL_ENDPOINT = "https://api.github.com/graphql";
 // BigQueryのプロジェクトID
-const GCP_PROJECT_ID = "pull-request-analysis-sample";
+const GCP_PROJECT_ID = "metrics-tracking-test";
 // GitHubのAPIからどの程度並列にデータを取得するか
 const CONCURRENT_FETCH_COUNT = 10;
 
@@ -109,6 +109,7 @@ async function importPullRequestsByDateRange(
   console.log(`importing... ${params.from.toISOString()}〜${params.to.toISOString()}`);
 
   const prs = await fetchMergedPullRequests(params.graphqlClient, params.from, params.to);
+  console.log(prs.length)
   if (prs.length === 0) return;
 
   // loadに渡せるように一時ファイルに書き込む
@@ -126,7 +127,9 @@ async function importPullRequestsByDateRange(
       schemaUpdateOptions: ["ALLOW_FIELD_ADDITION"],
     });
 
-  const errors = job.status?.errors;
+  console.log("JOB", job)
+  console.log("STATUS", job.status)
+  const errors = job.status ? job.status.errors : null
   if (errors && errors.length > 0) {
     throw errors;
   }
@@ -338,4 +341,4 @@ function sleep(msec: number): Promise<void> {
 }
 
 // avoid global scope
-export {};
+export { };
