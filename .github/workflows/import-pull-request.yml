@@ -26,10 +26,11 @@ jobs:
       - run: yarn install
       # GITHUB_IMPORTER_GCP_SA_KEYにGCPのキーファイルをbase64化したものを
       # 入れておけば、GCPの認証の設定をしてくれる。
-      - uses: google-github-actions/setup-gcloud@master
+      - uses: google-github-actions/auth@v0
         with:
-          service_account_key: ${{ secrets.GCP_SA_KEY_FOR_GITHUB_IMPORTER }}
-          export_default_credentials: true
+          credentials_json: ${{ secrets.GCP_SA_KEY_FOR_GITHUB_IMPORTER }}
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v0"
       - run: yarn --silent ts-node script/import-pull-request.ts
         env:
           START_DATE: ${{ github.event.inputs.start_date }}
